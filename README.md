@@ -30,16 +30,13 @@ particle-segment/
 
 ## 处理效果展示
 
-以下是使用示例图像FM_t01.jpg的处理结果：
+以下是三个示例图像的处理结果对比：
 
-| 阶段 | 图像 | 说明 |
-|------|------|------|
-| **原图** | ![原图](script/debug_overlay/FM_t01__00_raw.png) | 原始显微镜图像 |
-| **分水岭标记点** | ![标记点](script/debug_overlay/FM_t01__10_markers_n6_md60_tr0.4.png) | 检测到的粒子中心点（蓝色三角形） |
-| **分水岭分割** | ![分水岭](script/debug_overlay/FM_t01__11_watershed_labels_k6.png) | 基于标记点的分割结果 |
-| **边界叠加（灰度）** | ![边界灰度](script/debug_overlay/FM_t01__12_edges_on_raw.png) | 分割边界叠加在原灰度图上 |
-| **边界叠加（彩色）** | ![边界彩色](script/debug_overlay/FM_t01__13_edges_on_raw_bgr.png) | 分割边界叠加在原彩色图上 |
-| **最终结果** | ![最终结果](script/debug_overlay/FM_t01_boxes_alllabels.png) | 所有粒子的最小外接矩形框 |
+| 样本 | 原图 | 分水岭标记点 | 分水岭分割 | 边界叠加（灰度） | 边界叠加（彩色） | 最终检测框 |
+|------|------|-------------|-----------|------------------|------------------|------------|
+| **FM_t01** | ![原图1](script/debug_overlay/FM_t01__00_raw.png) | ![标记1](script/debug_overlay/FM_t01__10_markers_n6_md60_tr0.4.png) | ![分割1](script/debug_overlay/FM_t01__11_watershed_labels_k6.png) | ![边界灰1](script/debug_overlay/FM_t01__12_edges_on_raw.png) | ![边界彩1](script/debug_overlay/FM_t01__13_edges_on_raw_bgr.png) | ![检测框1](script/debug_overlay/FM_t01_boxes_alllabels.png) |
+| **FM_t10** | ![原图2](script/debug_overlay/FM_t10__00_raw.png) | ![标记2](script/debug_overlay/FM_t10__10_markers_n5_md60_tr0.4.png) | ![分割2](script/debug_overlay/FM_t10__11_watershed_labels_k5.png) | ![边界灰2](script/debug_overlay/FM_t10__12_edges_on_raw.png) | ![边界彩2](script/debug_overlay/FM_t10__13_edges_on_raw_bgr.png) | ![检测框2](script/debug_overlay/FM_t10_boxes_alllabels.png) |
+| **FM_t23** | ![原图3](script/debug_overlay/FM_t23__00_raw.png) | ![标记3](script/debug_overlay/FM_t23__10_markers_n10_md60_tr0.4.png) | ![分割3](script/debug_overlay/FM_t23__11_watershed_labels_k10.png) | ![边界灰3](script/debug_overlay/FM_t23__12_edges_on_raw.png) | ![边界彩3](script/debug_overlay/FM_t23__13_edges_on_raw_bgr.png) | ![检测框3](script/debug_overlay/FM_t23_boxes_alllabels.png) |
 
 ## 许可证
 
