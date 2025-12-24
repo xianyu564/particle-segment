@@ -94,7 +94,7 @@ python main.py
 启用 `DEBUG_DIR` 后，程序会在调试目录生成13张详细的处理步骤图像。每张图都有特定的诊断意义，下面按处理顺序详细说明：
 
 ### 00_raw.png（原图）
-![原图](debug_overlay/FM_t01__00_raw.png)
+<img src="../samples/samples/FM_t23.jpg" width="300" alt="原图">
 
 **要求**: 作为基准的输入灰度图，显示原始粒子边缘亮度、内部纹理和背景噪声水平。
 
@@ -107,7 +107,7 @@ python main.py
 **注意**: 这张图不应被任何处理影响，是所有后续步骤的基准。
 
 ### 01_mask_overlays.png（遮挡时间/比例尺区域）
-![遮挡](debug_overlay/FM_t01__01_mask_overlays.png)
+<img src="debug_overlay/FM_t23__01_mask_overlays.png" width="300" alt="遮挡">
 
 **要求**: 左上角时间区域和右下角比例尺区域被填成接近背景的中值灰度，但主体粒子区域完全不变。
 
@@ -120,7 +120,7 @@ python main.py
 - `scale_roi`: 比例尺区域 (默认: (700, 820, 324, 204))
 
 ### 02_median_k3.png（中值滤波去噪）
-![中值滤波](debug_overlay/FM_t01__02_median_k3.png)
+<img src="debug_overlay/FM_t23__02_median_k3.png" width="300" alt="中值滤波">
 
 **要求**: 减少盐椒噪声，但保持粒子边缘清晰（中值滤波比高斯模糊更适合保留边缘）。
 
@@ -131,7 +131,7 @@ python main.py
 - `median_ksize`: 滤波核大小 (默认: 3，建议范围: 3-5)
 
 ### 03_clahe_clip0.1.png（CLAHE对比度增强）
-![CLAHE](debug_overlay/FM_t01__03_clahe_clip0.1.png)
+<img src="debug_overlay/FM_t23__03_clahe_clip0.1.png" width="300" alt="CLAHE">
 
 **要求**: 粒子边缘更突出，背景保持暗淡。不要过度增强导致背景变亮。
 
@@ -142,7 +142,7 @@ python main.py
 - `clahe_clip`: CLAHE对比度限制 (默认: 0.1，建议范围: 0.1-1.0)
 
 ### 04_thr_otsu_*.png（阈值分割）
-![阈值分割](debug_overlay/FM_t01__04_thr_otsu_t64_off10_use56.png)
+<img src="debug_overlay/FM_t23__04_thr_otsu_t105_off10_use103.png" width="300" alt="阈值分割">
 
 **要求**: 粒子呈白色前景，背景尽可能黑色。允许粒子内部有黑洞/纹理（后续会填充）。
 
@@ -164,7 +164,7 @@ python main.py
 - 对策: `thr_offset` 调正值，或降低 `fg_ratio_min`
 
 ### 05_rm_small_cc_min800.png（去除小连通域）
-![去小连通域](debug_overlay/FM_t01__05_rm_small_cc_min800.png)
+<img src="debug_overlay/FM_t23__05_rm_small_cc_min800.png" width="300" alt="去小连通域">
 
 **要求**: 大幅减少背景小白点，保留粒子主体。允许轻微去除粒子毛边，但不能过度侵蚀粒子。
 
@@ -176,8 +176,8 @@ python main.py
 - `min_cc_area`: 最小连通域面积 (默认: 800，建议范围: 400-1200)
 
 ### 06a_keep_big_min3000.png & 06b_bridge_close_cross_k5_it2.png（桥接处理）
-![保留大颗粒](debug_overlay/FM_t01__06a_keep_big_min3000.png)
-![桥接处理](debug_overlay/FM_t01__06b_bridge_close_cross_k5_it2.png)
+<img src="debug_overlay/FM_t23__06a_keep_big_min3000.png" width="300" alt="保留大颗粒">
+<img src="debug_overlay/FM_t23__06b_bridge_close_cross_k5_it2.png" width="300" alt="桥接处理">
 
 **要求**: 只对大颗粒进行桥接，修复边缘小缺口，避免噪声连片。
 
@@ -187,7 +187,7 @@ python main.py
 - `bridge_iter`: 桥接迭代次数 (默认: 2)
 
 ### 07_fill_holes_1.png（填充孔洞）
-![填充孔洞](debug_overlay/FM_t01__07_fill_holes_1.png)
+<img src="debug_overlay/FM_t23__07_fill_holes_1.png" width="300" alt="填充孔洞">
 
 **要求**: 填充粒子内部黑洞，使粒子变为"实心"。前提是前面的04/05步骤已足够干净。
 
@@ -198,7 +198,7 @@ python main.py
 - `fill_holes`: 是否填充孔洞 (默认: True)
 
 ### 08_open_k3_it1.png（开运算去毛刺）
-![开运算](debug_overlay/FM_t01__08_open_k3_it1.png)
+<img src="debug_overlay/FM_t23__08_open_k3_it1.png" width="300" alt="开运算">
 
 **要求**: 去除边缘毛刺和小突出，不要过度缩小粒子。
 
@@ -210,7 +210,7 @@ python main.py
 - `open_iter`: 开运算迭代次数 (默认: 1)
 
 ### 09_distance.png（距离变换）
-![距离变换](debug_overlay/FM_t01__09_distance.png)
+<img src="debug_overlay/FM_t23__09_distance.png" width="300" alt="距离变换">
 
 **要求**: 每个粒子内部形成"亮山峰"，中心亮边缘暗。粘连粒子应显示两个峰或马鞍形。
 
@@ -220,7 +220,7 @@ python main.py
 **诊断**: 如果这张图有问题，需回看04/05/08步骤。
 
 ### 10_markers_n6_md60_tr0.4.png（分水岭标记点）
-![标记点](debug_overlay/FM_t01__10_markers_n6_md60_tr0.4.png)
+<img src="debug_overlay/FM_t23__10_markers_n10_md60_tr0.4.png" width="300" alt="标记点">
 
 **要求**: 理想情况下每个粒子1个红色标记点。粘连时每个子粒子一个点。
 
@@ -233,7 +233,7 @@ python main.py
 - 点太少: 减少 `ws_min_distance` 或 `ws_threshold_rel`
 
 ### 11_watershed_labels_k6.png（分水岭分割结果）
-![分水岭分割](debug_overlay/FM_t01__11_watershed_labels_k6.png)
+<img src="debug_overlay/FM_t23__11_watershed_labels_k10.png" width="300" alt="分水岭分割">
 
 **要求**: 每个粒子一个连通的label区域，粘连处被正确切开。
 
@@ -244,8 +244,8 @@ python main.py
 **诊断**: 问题出现时需回看10_markers、08_open、04_thr步骤。
 
 ### 12_edges_on_raw.png & 13_edges_on_raw_bgr.png（边界叠加）
-![边界灰度](debug_overlay/FM_t01__12_edges_on_raw.png)
-![边界彩色](debug_overlay/FM_t01__13_edges_on_raw_bgr.png)
+<img src="debug_overlay/FM_t23__12_edges_on_raw.png" width="300" alt="边界灰度">
+<img src="debug_overlay/FM_t23__13_edges_on_raw_bgr.png" width="300" alt="边界彩色">
 
 **要求**: 蓝色边界紧贴粒子外轮廓，每个粒子形成完整闭合边界。
 
@@ -255,7 +255,7 @@ python main.py
 - 粘连处是否正确切开
 
 ### 最终检测框 (boxes_alllabels.png)
-![最终检测框](debug_overlay/FM_t01_boxes_alllabels.png)
+<img src="debug_overlay/FM_t23_boxes_alllabels.png" width="300" alt="最终检测框">
 
 **要求**: 每个保留粒子被红色最小外接矩形框包围，框角度合理且尺寸贴合。
 
