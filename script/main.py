@@ -506,7 +506,32 @@ def process_one(path,
                 scale_roi=(650, 820, 380, 220),
                 margin=5,
                 min_area=5000,
-                debug_dir=None):
+                debug_dir=None,
+                # 分割参数
+                use_clahe=True,
+                clahe_clip=0.1,
+                clahe_grid=(8, 8),
+                median_ksize=3,
+                thr_method="otsu",
+                thr_offset=10,
+                auto_clip_white=True,
+                fg_ratio_max=0.18,
+                fg_ratio_min=0.003,
+                auto_step=2,
+                auto_max_iter=40,
+                min_cc_area=800,
+                close_kernel=1,
+                close_iter=1,
+                open_kernel=3,
+                open_iter=1,
+                fill_holes=True,
+                ws_min_distance=60,
+                ws_threshold_rel=0.4,
+                bridge_min_area=3000,
+                bridge_kernel=5,
+                bridge_iter=2,
+                # 其他参数
+                include_border=True):
     bgr = cv2.imread(path, cv2.IMREAD_COLOR)
     if bgr is None:
         raise RuntimeError(f"Cannot read image: {path}")
@@ -531,6 +556,29 @@ def process_one(path,
         gray,
         time_roi=time_roi,
         scale_roi=scale_roi,
+        # 分割参数
+        use_clahe=use_clahe,
+        clahe_clip=clahe_clip,
+        clahe_grid=clahe_grid,
+        median_ksize=median_ksize,
+        thr_method=thr_method,
+        thr_offset=thr_offset,
+        auto_clip_white=auto_clip_white,
+        fg_ratio_max=fg_ratio_max,
+        fg_ratio_min=fg_ratio_min,
+        auto_step=auto_step,
+        auto_max_iter=auto_max_iter,
+        min_cc_area=min_cc_area,
+        close_kernel=close_kernel,
+        close_iter=close_iter,
+        open_kernel=open_kernel,
+        open_iter=open_iter,
+        fill_holes=fill_holes,
+        ws_min_distance=ws_min_distance,
+        ws_threshold_rel=ws_threshold_rel,
+        bridge_min_area=bridge_min_area,
+        bridge_kernel=bridge_kernel,
+        bridge_iter=bridge_iter,
         debug_dir=debug_dir,   # 复用你传入的 debug_dir
         stem=stem,
         raw_bgr=bgr,   # <--- 这里传进去
@@ -540,8 +588,9 @@ def process_one(path,
     particles = measure_ac(
         labels_ws=labels_ws,
         um_per_px=um_per_px,
-        min_area=0,            # 0 = 不过滤，拿到所有label
-        include_border=True,   # True = 不丢边界
+        min_area=min_area,     # 使用配置中的参数
+        include_border=include_border,  # 使用配置中的参数
+        margin=margin,         # 使用配置中的参数
     )
 
     if debug_dir is not None:
@@ -568,7 +617,18 @@ def process_one(path,
 # -----------------------------
 # Process folder -> JSON
 # -----------------------------
-def process_folder(in_dir, pattern="FM_t*.jpg", out_json="results.json", debug_dir="debug_boxes", **kwargs):
+def process_folder(in_dir, pattern="FM_t*.jpg", out_json="results.json", debug_dir="debug_boxes",
+                   real_um=5.0, time_dt_seconds=5, time_roi=(0, 0, 300, 160), scale_roi=(650, 820, 380, 220),
+                   margin=5, min_area=5000,
+                   # 分割参数
+                   use_clahe=True, clahe_clip=0.1, clahe_grid=(8, 8), median_ksize=3,
+                   thr_method="otsu", thr_offset=10, auto_clip_white=True,
+                   fg_ratio_max=0.18, fg_ratio_min=0.003, auto_step=2, auto_max_iter=40,
+                   min_cc_area=800, close_kernel=1, close_iter=1, open_kernel=3, open_iter=1, fill_holes=True,
+                   ws_min_distance=60, ws_threshold_rel=0.4,
+                   bridge_min_area=3000, bridge_kernel=5, bridge_iter=2,
+                   # 其他参数
+                   include_border=True):
     paths = sorted(glob.glob(os.path.join(in_dir, pattern)))
     all_res = []
     
@@ -576,7 +636,39 @@ def process_folder(in_dir, pattern="FM_t*.jpg", out_json="results.json", debug_d
     for p in paths:
         if os.path.basename(p) in want:
             print("processing:", p)
-            all_res.append(process_one(p, debug_dir=debug_dir, **kwargs))
+            all_res.append(process_one(p,
+                                     real_um=real_um,
+                                     time_dt_seconds=time_dt_seconds,
+                                     time_roi=time_roi,
+                                     scale_roi=scale_roi,
+                                     margin=margin,
+                                     min_area=min_area,
+                                     debug_dir=debug_dir,
+                                     # 分割参数
+                                     use_clahe=use_clahe,
+                                     clahe_clip=clahe_clip,
+                                     clahe_grid=clahe_grid,
+                                     median_ksize=median_ksize,
+                                     thr_method=thr_method,
+                                     thr_offset=thr_offset,
+                                     auto_clip_white=auto_clip_white,
+                                     fg_ratio_max=fg_ratio_max,
+                                     fg_ratio_min=fg_ratio_min,
+                                     auto_step=auto_step,
+                                     auto_max_iter=auto_max_iter,
+                                     min_cc_area=min_cc_area,
+                                     close_kernel=close_kernel,
+                                     close_iter=close_iter,
+                                     open_kernel=open_kernel,
+                                     open_iter=open_iter,
+                                     fill_holes=fill_holes,
+                                     ws_min_distance=ws_min_distance,
+                                     ws_threshold_rel=ws_threshold_rel,
+                                     bridge_min_area=bridge_min_area,
+                                     bridge_kernel=bridge_kernel,
+                                     bridge_iter=bridge_iter,
+                                     # 其他参数
+                                     include_border=include_border))
 
 # =============================================================================
 #     for p in paths[1,23:24]:
@@ -591,24 +683,105 @@ def process_folder(in_dir, pattern="FM_t*.jpg", out_json="results.json", debug_d
 
 
 # -----------------------------
-# 10) 你只需要改这里：输入文件夹/输出 JSON/是否输出 debug
+# 配置参数 (Config Parameters)
+# 所有可调参数集中在这里，方便调整和查看说明
+# -----------------------------
+CONFIG = {
+    # ===== 文件路径配置 =====
+    "IN_DIR": r"..\samples\samples",           # 你的图片所在文件夹
+    "OUT_JSON": r".\out_particles.json",       # 输出JSON文件路径
+    "DEBUG_DIR": r".\debug_overlay",           # 调试图片输出文件夹 (设为None就不输出debug图)
+
+    # ===== 文件处理配置 =====
+    "pattern": "FM_t*.jpg",                    # 文件名匹配模式
+    "real_um": 5.0,                            # 比例尺实际长度(微米)
+    "time_dt_seconds": 5,                      # 时间间隔(秒)，用于从文件名解析时间
+
+    # ===== ROI区域配置 =====
+    "time_roi": (0, 0, 260, 140),             # 时间标记区域 (x, y, w, h)
+    "scale_roi": (700, 820, 324, 204),        # 比例尺区域 (x, y, w, h)
+
+    # ===== 图像预处理参数 =====
+    "use_clahe": True,                         # 是否使用CLAHE增强对比度
+    "clahe_clip": 0.1,                         # CLAHE clip limit，太大容易把背景抬亮 -> "压不住白"
+    "clahe_grid": (8, 8),                      # CLAHE网格大小
+    "median_ksize": 3,                         # 中值滤波核大小，不是gaussian；对盐椒点更有效。不要太大(3/5)
+
+    # ===== 阈值处理参数 =====
+    "thr_method": "otsu",                      # 阈值方法: "triangle" or "otsu"
+    "thr_offset": 10,                          # 阈值偏移，>0更敏感(阈值更低); <0更保守(阈值更高，用来"压白")
+    "auto_clip_white": True,                   # 自动"压白"，通过监控前景占比
+    "fg_ratio_max": 0.18,                      # 前景占比上限，太高就自动抬阈值
+    "fg_ratio_min": 0.003,                     # 前景占比下限，太低就自动降阈值(保细边)
+    "auto_step": 2,                            # 自动调整阈值的步长
+    "auto_max_iter": 40,                       # 自动调整的最大迭代次数
+
+    # ===== 二值化清理参数 =====
+    "min_cc_area": 800,                        # 最小连通域面积，关键：压小点爆炸（你图上300~800都可试）
+    "close_kernel": 1,                         # 闭运算核大小，默认关掉close（你说close不合理）
+    "close_iter": 1,                           # 闭运算迭代次数
+    "open_kernel": 3,                          # 开运算核大小，很轻的open；主要用于边缘毛刺
+    "open_iter": 1,                            # 开运算迭代次数
+    "fill_holes": True,                        # 是否填充孔洞
+
+    # ===== 分水岭参数 =====
+    "ws_min_distance": 60,                     # 分水岭最小距离
+    "ws_threshold_rel": 0.4,                   # 分水岭相对阈值
+
+    # ===== 桥接参数 (GAP BRIDGING) =====
+    "bridge_min_area": 3000,                   # 只对大颗粒补缝，避免噪声越补越多
+    "bridge_kernel": 5,                        # 关键旋钮：3/5先试；太大容易把相邻颗粒粘死
+    "bridge_iter": 2,                          # 一般1就够，必要再到2
+
+    # ===== 测量参数 =====
+    "margin": 60,                              # 边界边距，用于过滤触边粒子
+    "min_area": 5000,                          # 最小粒子面积过滤 (0=不过滤)
+    "include_border": True,                    # 是否包含触边粒子 (True=不丢边界)
+
+    # ===== 可选功能 =====
+    "assume_bright_particle": True,            # True表示粒子边缘更亮（你这张更像这样）
+    "invert": False,                           # trackpy的"亮/暗特征"开关，先保持False
+}
+
+# -----------------------------
+# 10) 主程序入口
 # -----------------------------
 if __name__ == "__main__":
-    # 你的图片所在文件夹
-    IN_DIR = r"..\samples\samples"
-    OUT_JSON = r".\out_particles.json"
-    DEBUG_DIR = r".\debug_overlay"   # 设为 None 就不输出 debug 图
-
-    # 关键可调参数：
-    # assume_bright_particle: True 表示粒子边缘更亮（你这张更像这样）
-    # invert: trackpy 的“亮/暗特征”开关，先保持 False
     out = process_folder(
-        IN_DIR,
-        pattern="FM_t*.jpg",
-        out_json=OUT_JSON,
-        debug_dir=DEBUG_DIR,
-        time_roi=(0, 0, 260, 140),
-        scale_roi=(700, 820, 324, 204),
-        margin=60,
+        CONFIG["IN_DIR"],
+        pattern=CONFIG["pattern"],
+        out_json=CONFIG["OUT_JSON"],
+        debug_dir=CONFIG["DEBUG_DIR"],
+        real_um=CONFIG["real_um"],
+        time_dt_seconds=CONFIG["time_dt_seconds"],
+        time_roi=CONFIG["time_roi"],
+        scale_roi=CONFIG["scale_roi"],
+        margin=CONFIG["margin"],
+        min_area=CONFIG["min_area"],
+        # 分割参数
+        use_clahe=CONFIG["use_clahe"],
+        clahe_clip=CONFIG["clahe_clip"],
+        clahe_grid=CONFIG["clahe_grid"],
+        median_ksize=CONFIG["median_ksize"],
+        thr_method=CONFIG["thr_method"],
+        thr_offset=CONFIG["thr_offset"],
+        auto_clip_white=CONFIG["auto_clip_white"],
+        fg_ratio_max=CONFIG["fg_ratio_max"],
+        fg_ratio_min=CONFIG["fg_ratio_min"],
+        auto_step=CONFIG["auto_step"],
+        auto_max_iter=CONFIG["auto_max_iter"],
+        min_cc_area=CONFIG["min_cc_area"],
+        close_kernel=CONFIG["close_kernel"],
+        close_iter=CONFIG["close_iter"],
+        open_kernel=CONFIG["open_kernel"],
+        open_iter=CONFIG["open_iter"],
+        fill_holes=CONFIG["fill_holes"],
+        ws_min_distance=CONFIG["ws_min_distance"],
+        ws_threshold_rel=CONFIG["ws_threshold_rel"],
+        bridge_min_area=CONFIG["bridge_min_area"],
+        bridge_kernel=CONFIG["bridge_kernel"],
+        bridge_iter=CONFIG["bridge_iter"],
+        # 其他参数
+        include_border=CONFIG["include_border"],
     )
     print("saved:", out)
